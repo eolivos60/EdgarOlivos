@@ -379,7 +379,7 @@ async def _custom_workflow(self, args: Dict) -> Dict:
 The MCP server works seamlessly with AI assistants:
 
 ```
-User → AI Assistant (approved enterprise channel)
+User → AI Assistant (Claude, GPT-4, etc.)
          ↓
     MCP Client
          ↓

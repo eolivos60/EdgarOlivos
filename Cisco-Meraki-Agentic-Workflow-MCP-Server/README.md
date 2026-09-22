@@ -32,8 +32,8 @@ A Model Context Protocol (MCP) server for intelligent Cisco Meraki network troub
 
 ### Prerequisites
 - Python 3.10 or higher
-- Cisco Meraki credentials (API key or dashboard cookie session)
-- Approved client path for your org (GitHub Copilot, AWS Bedrock, or CircuIT)
+- Cisco Meraki API key
+- MCP-compatible client (Claude Desktop, Cline, etc.)
 
 ### Setup
 
@@ -49,23 +49,14 @@ cd meraki-mcp-server
 pip install -e .
 ```
 
-3. **Set up credentials**
+3. **Set up your Meraki API key**
 
-Create a `.env` file for API-key auth:
+Create a `.env` file:
 ```bash
 MERAKI_API_KEY=your_api_key_here
 ```
 
-Or for dashboard cookie auth (supports GET and PUT when session + CSRF are valid):
-```bash
-MERAKI_AUTH_METHOD=cookies
-MERAKI_DASHBOARD_HOST=n###.dashboard.meraki.com
-MERAKI_COOKIES=...
-MERAKI_CSRF_TOKEN=...
-MERAKI_REFERER=https://n###.dashboard.meraki.com/
-```
-
-Or export API key as environment variable:
+Or export as environment variable:
 ```bash
 export MERAKI_API_KEY=your_api_key_here
 ```
@@ -80,9 +71,30 @@ export MERAKI_API_KEY=your_api_key_here
 
 ## Configuration
 
-### Approved MCP Client Configuration
+### Claude Desktop
 
-Use your approved Cisco channel (GitHub Copilot, AWS Bedrock integration, or CircuIT) and register this server with your client's MCP settings:
+Add to your `claude_desktop_config.json`:
+
+**MacOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "meraki-assistant": {
+      "command": "python",
+      "args": ["/path/to/meraki-mcp-server/server.py"],
+      "env": {
+        "MERAKI_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+### Cline (VS Code Extension)
+
+Add to your MCP settings:
 
 ```json
 {
@@ -90,42 +102,11 @@ Use your approved Cisco channel (GitHub Copilot, AWS Bedrock integration, or Cir
     "command": "python",
     "args": ["/path/to/meraki-mcp-server/server.py"],
     "env": {
-      "MERAKI_API_KEY": "your_api_key_here",
-      "MERAKI_AUTH_METHOD": "auto"
+      "MERAKI_API_KEY": "your_api_key_here"
     }
   }
 }
 ```
-
-### Large Organization Device Retrieval (Up To 5000)
-
-Use `get_organization_devices` with `auto_paginate` for large organizations:
-
-```json
-{
-  "organization_id": "123456",
-  "per_page": 1000,
-  "auto_paginate": true,
-  "max_records": 5000
-}
-```
-
-For manual paging, keep `auto_paginate` false and pass `starting_after` with the last serial from the prior batch.
-
-### Find One Device Serial (Recommended For Large Orgs)
-
-Use `find_organization_device_by_serial` to scan pages server-side and return a match in one tool call:
-
-```json
-{
-  "organization_id": "123456",
-  "serial": "Q3AC-WY9C-4STT",
-  "per_page": 1000,
-  "max_pages": 100
-}
-```
-
-When found, response includes `device` and `node_id` (parsed from `device.url` when present).
 
 ## Usage Examples
 
@@ -172,12 +153,6 @@ Agent: [Uses update_device tool]
 
 User: "Enable SSID 1 in network ABC and set the name to 'Corporate-WiFi'"
 Agent: [Uses update_wireless_ssid tool]
-
-User: "Clear internal adminTags for serial Q3AC-KGYE-MZKY"
-Agent: [Uses update_device_admin_tags with admin_tags=[]]
-
-User: "Find serial Q3AC-KGYE-MZKY and clear adminTags in one step"
-Agent: [Uses clear_device_admin_tags_by_serial]
 ```
 
 ## Available Tools
@@ -186,9 +161,6 @@ Agent: [Uses clear_device_admin_tags_by_serial]
 - `get_organizations` - List all accessible organizations
 - `get_networks` - Get networks in an organization
 - `get_network_devices` - List devices in a network
-- `get_organization_devices` - List organization devices with pagination (`starting_after`, `ending_before`) and optional auto-pagination up to 5000 records
-- `find_organization_device_by_serial` - Search organization devices across pages and return the matching device plus node ID
-- `get_device_internal_details` - Read internal dashboard device details (cookie auth), including adminTags when available
 
 ### Monitoring Tools
 - `get_device_status` - Detailed device status
@@ -203,51 +175,9 @@ Agent: [Uses clear_device_admin_tags_by_serial]
 
 ### Configuration Tools
 - `update_device` - Update device configuration
-- `update_device_admin_tags` - Update internal adminTags field through dashboard internal API (cookie auth)
-- `clear_device_admin_tags_by_serial` - Find by serial in org and clear adminTags in one call (cookie auth)
 - `update_network` - Update network settings
 - `get_wireless_ssids` - List wireless SSIDs
 - `update_wireless_ssid` - Update SSID configuration
-
-### Admin Tags Through Internal API
-
-Use cookie auth for these operations:
-
-```bash
-MERAKI_AUTH_METHOD=cookies
-MERAKI_DASHBOARD_HOST=n###.dashboard.meraki.com
-MERAKI_COOKIES=...
-MERAKI_CSRF_TOKEN=...
-```
-
-Read current internal details:
-
-```json
-{
-  "serial": "Q3AC-KGYE-MZKY"
-}
-```
-
-Clear admin tags:
-
-```json
-{
-  "serial": "Q3AC-KGYE-MZKY",
-  "admin_tags": []
-}
-```
-
-Convenience one-call flow (find + clear + optional verification):
-
-```json
-{
-  "organization_id": "622622648484233674",
-  "serial": "Q3AC-KGYE-MZKY",
-  "per_page": 1000,
-  "max_pages": 100,
-  "verify_after": true
-}
-```
 
 ### Agentic Workflow Tools
 - `diagnose_connectivity_issue` - Intelligent multi-step diagnosis
@@ -333,14 +263,9 @@ ruff check server.py
 - Ensure resource exists in Dashboard
 
 ### Tool Not Appearing in Client
-- Restart your approved MCP-capable client
+- Restart MCP client (Claude Desktop, Cline, etc.)
 - Check MCP server logs for errors
 - Verify configuration file syntax
-
-### Compliance Guardrails
-- Do not use native Anthropic API routes or Anthropic-native products for this workflow
-- Use only approved channels: GitHub Copilot, AWS Bedrock, or CircuIT
-- See COMPLIANCE.md for policy mapping and verification steps
 
 ## Security Best Practices
 

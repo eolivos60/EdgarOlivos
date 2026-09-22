@@ -143,8 +143,15 @@ echo ""
 CLAUDE_CONFIG=""
 CLINE_DETECTED=false
 
-# Anthropic-native routes are intentionally not auto-configured here.
-print_info "Policy mode: use approved channels only (GitHub Copilot, AWS Bedrock, or CircuIT)."
+# Check for Claude Desktop (macOS)
+if [ -d "$HOME/Library/Application Support/Claude" ]; then
+    CLAUDE_CONFIG="$HOME/Library/Application Support/Claude/claude_desktop_config.json"
+    print_info "Claude Desktop detected (macOS)"
+# Check for Claude Desktop (Windows/WSL)
+elif [ -d "$APPDATA/Claude" ]; then
+    CLAUDE_CONFIG="$APPDATA/Claude/claude_desktop_config.json"
+    print_info "Claude Desktop detected (Windows)"
+fi
 
 # Check for Cline (VS Code)
 if command -v code &> /dev/null; then
@@ -153,7 +160,7 @@ if command -v code &> /dev/null; then
 fi
 
 # Offer to configure
-if [ "$CLINE_DETECTED" = true ]; then
+if [ ! -z "$CLAUDE_CONFIG" ] || [ "$CLINE_DETECTED" = true ]; then
     echo ""
     read -p "Would you like to see the configuration instructions? (y/n): " SHOW_CONFIG
     
@@ -162,6 +169,24 @@ if [ "$CLINE_DETECTED" = true ]; then
         echo "════════════════════════════════════════════════════════════"
         echo "Configuration Instructions"
         echo "════════════════════════════════════════════════════════════"
+        
+        if [ ! -z "$CLAUDE_CONFIG" ]; then
+            echo ""
+            echo "For Claude Desktop, add this to:"
+            echo "  $CLAUDE_CONFIG"
+            echo ""
+            echo "{"
+            echo "  \"mcpServers\": {"
+            echo "    \"meraki-assistant\": {"
+            echo "      \"command\": \"$(which python3)\","
+            echo "      \"args\": [\"$(pwd)/server.py\"],"
+            echo "      \"env\": {"
+            echo "        \"MERAKI_API_KEY\": \"your_api_key_here\""
+            echo "      }"
+            echo "    }"
+            echo "  }"
+            echo "}"
+        fi
         
         if [ "$CLINE_DETECTED" = true ]; then
             echo ""
@@ -179,7 +204,7 @@ if [ "$CLINE_DETECTED" = true ]; then
         fi
     fi
 else
-    print_warning "No approved MCP client detected. See QUICKSTART.md and COMPLIANCE.md for configuration."
+    print_warning "No MCP client detected. See QUICKSTART.md for configuration."
 fi
 
 # Run tests

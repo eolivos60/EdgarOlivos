@@ -6,7 +6,7 @@ This guide will get you up and running with the Meraki MCP Server in under 5 min
 
 - [ ] Python 3.10+ installed
 - [ ] Meraki Dashboard account with API access
-- [ ] Approved client path (GitHub Copilot, AWS Bedrock, or CircuIT)
+- [ ] MCP-compatible client (Claude Desktop, Cline, etc.)
 
 ## Step 1: Get Your Meraki API Key (2 minutes)
 
@@ -28,9 +28,13 @@ pip install -e .
 
 ## Step 3: Configure Your Client (2 minutes)
 
-### For Your Approved MCP Client
+### For Claude Desktop
 
-Register this server in your approved MCP-capable client configuration:
+**MacOS**: Edit `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+**Windows**: Edit `%APPDATA%\Claude\claude_desktop_config.json`
+
+Add this configuration:
 
 ```json
 {
@@ -48,7 +52,24 @@ Register this server in your approved MCP-capable client configuration:
 
 **Important**: Replace `/FULL/PATH/TO/` with the actual absolute path!
 
-Policy note: Do not configure this repository through Anthropic-native products or direct Anthropic API credentials.
+### For Cline (VS Code)
+
+1. Open VS Code
+2. Install Cline extension if not already installed
+3. Open Cline settings
+4. Add MCP server configuration:
+
+```json
+{
+  "meraki-assistant": {
+    "command": "python",
+    "args": ["/FULL/PATH/TO/meraki-mcp-server/server.py"],
+    "env": {
+      "MERAKI_API_KEY": "YOUR_API_KEY_HERE"
+    }
+  }
+}
+```
 
 ## Step 4: Test It! (30 seconds)
 

@@ -13,7 +13,7 @@
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                     AI Assistant Layer                      │
-│   (GitHub Copilot, AWS Bedrock, CircuIT, Custom Assistants) │
+│     (Claude Desktop, Cline, GPT-4, Custom Assistants)       │
 │                                                             │
 │  • Natural language understanding                           │
 │  • Intent recognition                                       │

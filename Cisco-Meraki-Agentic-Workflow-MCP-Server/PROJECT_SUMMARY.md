@@ -33,7 +33,7 @@ meraki-mcp-server/
 ├── LICENSE                        # MIT License
 ├── .env.example                   # Environment variable template
 ├── .gitignore                     # Git ignore rules
-├── claude_desktop_config.json    # Legacy example (non-compliant in Cisco policy)
+├── claude_desktop_config.json    # Claude Desktop config example
 ├── cline_mcp_settings.json       # Cline config example
 ├── tests/
 │   └── test_server.py            # Unit and integration tests
@@ -53,8 +53,8 @@ pip install -e .
 # 2. Set API key
 export MERAKI_API_KEY=your_key_here
 
-# 3. Configure approved MCP client
-# Use GitHub Copilot, AWS Bedrock integration, or CircuIT channel
+# 3. Configure MCP client
+# Edit claude_desktop_config.json or cline_mcp_settings.json
 
 # 4. Start using!
 # Ask your AI assistant: "Show me my Meraki networks"
@@ -167,7 +167,7 @@ AI: [Uses automated_health_check]
 
 ## 🎨 Integration Examples
 
-### Approved MCP Client
+### Claude Desktop
 ```json
 {
   "mcpServers": {

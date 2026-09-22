@@ -30,8 +30,3 @@ target-version = ['py310']
 [tool.ruff]
 line-length = 88
 target-version = "py310"
-
-[tool.pytest.ini_options]
-markers = [
-    "slow: marks tests as slow (multi-step agentic workflows that hit multiple Meraki API calls)",
-]
