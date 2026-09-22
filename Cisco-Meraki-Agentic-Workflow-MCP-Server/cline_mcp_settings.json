@@ -1,0 +1,9 @@
+{
+  "meraki-assistant": {
+    "command": "python",
+    "args": ["${workspaceFolder}/meraki-mcp-server/server.py"],
+    "env": {
+      "MERAKI_API_KEY": "${env:MERAKI_API_KEY}"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "_policy_notice": "Legacy example only. Cisco policy requires approved channels (GitHub Copilot, AWS Bedrock, CircuIT) and disallows Anthropic-native product/API use.",
+  "mcpServers": {
+    "meraki-assistant": {
+      "command": "python",
+      "args": ["/absolute/path/to/meraki-mcp-server/server.py"],
+      "env": {
+        "MERAKI_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}

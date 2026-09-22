@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="45mm" height="45mm" viewBox="0 0 45 45" role="img" aria-label="QR code for the Cisco Meraki Agentic Workflow MCP Server repository">
+  <title>GitHub repository QR code</title>
+  <style>
+    image { filter: invert(1); }
+  </style>
+  <image href="cisco-meraki-mcp-repository-qr.svg" x="0" y="0" width="45" height="45" />
+</svg>
